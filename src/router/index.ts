@@ -162,7 +162,21 @@ export const dynamicRoutes: RouteOption[] = [
         meta: { title: '修改生成配置', activeMenu: '/tool/gen', icon: '' }
       }
     ]
-  }
+  },
+  {
+    path: '/po/po-data',
+    component: Layout,
+    hidden: true,
+    permissions: ['po:pomaster:list'],
+    children: [
+      {
+        path: 'index/:sheetId(\\d+)',
+        component: () => import('@/views/po/pomaster/data.vue'),
+        name: 'PoDetail',
+        meta: { title: '订单数据', activeMenu: '/po/pomaster', icon: '' }
+      }
+    ]
+  },
 ];
 
 /**
