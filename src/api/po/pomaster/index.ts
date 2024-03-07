@@ -27,6 +27,12 @@ export const getPomaster = (sheetId: string | number): AxiosPromise<PomasterVO> 
   });
 };
 
+export const copyPomaster = (sheetId: string | number): AxiosPromise<PomasterVO> => {
+  return request({
+    url: '/po/pomaster/copy/' + sheetId,
+    method: 'post'
+  });
+};
 /**
  * 新增采购订单
  * @param data

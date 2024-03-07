@@ -47,6 +47,10 @@
           <el-col :span="1.5">
             <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['po:pomaster:export']">导出</el-button>
           </el-col>
+
+          <el-col :span="1.5">
+            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleCopy()" v-hasPermi="['po:pomaster:add']">复制选中的单据</el-button>
+          </el-col>
           <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
       </template>
@@ -113,7 +117,7 @@
 </template>
 
 <script setup name="Pomaster" lang="ts">
-import { listPomaster, getPomaster, delPomaster, addPomaster, updatePomaster } from '@/api/po/pomaster';
+import {listPomaster, getPomaster, delPomaster, addPomaster, updatePomaster, copyPomaster} from '@/api/po/pomaster';
 import { PomasterVO, PomasterQuery, PomasterForm } from '@/api/po/pomaster/types';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -260,6 +264,13 @@ const handleUpdate = async (row?: PomasterVO) => {
   dialog.title = "修改采购订单";
 }
 
+
+const handleCopy = async (row?: PomasterVO) => {
+  const _sheetId = row?.sheetId || ids.value[0]
+  await copyPomaster(_sheetId);
+  proxy?.$modal.msgSuccess("复制成功");
+  getList();
+}
 /** 提交按钮 */
 const submitForm = () => {
   pomasterFormRef.value?.validate(async (valid: boolean) => {

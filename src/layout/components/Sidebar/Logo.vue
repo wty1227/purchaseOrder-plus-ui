@@ -35,7 +35,7 @@ defineProps({
     }
 })
 
-const title = ref('RuoYi-Vue-Plus');
+const title = ref('订货管理系统');
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);
 </script>

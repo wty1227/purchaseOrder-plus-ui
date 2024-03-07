@@ -18,7 +18,10 @@
             <el-button type="primary" plain icon="Plus" :disabled="pomaster.sheetStatus !== '0'" @click="handleAdd" v-hasPermi="['po:pomaster:add']">新增</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button type="success" plain icon="Edit" :disabled="pomaster.sheetStatus === '2'"  @click="handleUpdateList()" v-hasPermi="['po:pomaster:edit']">保存</el-button>
+            <el-button type="success" plain icon="Edit" :disabled="pomaster.sheetStatus !== '0'"  @click="handleUpdateList()" v-hasPermi="['po:pomaster:edit-purchase']">保存要货信息</el-button>
+          </el-col>
+          <el-col :span="1.5">
+            <el-button type="success" plain icon="Edit" :disabled="pomaster.sheetStatus === '2'"  @click="handleUpdateList()" v-hasPermi="['po:pomaster:edit-real']">保存配送信息</el-button>
           </el-col>
 <!--          <el-col :span="1.5">-->
 <!--            <el-button type="danger" plain icon="Delete" :disabled="pomaster.sheetStatus !== '0'" @click="handleDelete()" v-hasPermi="['po:pomaster:remove']">删除</el-button>-->
@@ -75,40 +78,40 @@
         <el-table-column label="配送信息" align="center">
             <el-table-column label="万" align="center" prop="realQty1" class-name="success-row">
               <template #default="scope">
-                <el-input v-model="scope.row.realQty1" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-all'])"/>
+                <el-input v-model="scope.row.realQty1" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-real'])"/>
               </template>
             </el-table-column>
             <el-table-column label="县" align="center" prop="realQty2" class-name="success-row">
               <template #default="scope">
-                <el-input v-model="scope.row.realQty2" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-all'])"/>
+                <el-input v-model="scope.row.realQty2" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-real'])"/>
               </template>
             </el-table-column>
             <el-table-column label="公" align="center" prop="realQty3" class-name="success-row">
               <template #default="scope">
-                <el-input v-model="scope.row.realQty3" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-all'])"/>
+                <el-input v-model="scope.row.realQty3" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-real'])"/>
               </template>
             </el-table-column>
             <el-table-column label="中" align="center" prop="realQty4" class-name="success-row">
               <template #default="scope">
-                <el-input v-model="scope.row.realQty4" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-all'])"/>
+                <el-input v-model="scope.row.realQty4" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-real'])"/>
               </template>
             </el-table-column>
             <el-table-column label="稼" align="center" prop="realQty5" class-name="success-row">
               <template #default="scope">
-                <el-input v-model="scope.row.realQty5" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-all'])"/>
+                <el-input v-model="scope.row.realQty5" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-real'])"/>
               </template>
             </el-table-column>
             <el-table-column label="云" align="center" prop="realQty6" class-name="success-row">
               <template #default="scope">
-                <el-input v-model="scope.row.realQty6" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-all'])"/>
+                <el-input v-model="scope.row.realQty6" controls-position="right" :min="0" :disabled="pomaster.sheetStatus === '2' || !checkPermi(['po:pomaster:edit-real'])"/>
               </template>
             </el-table-column>
         </el-table-column>
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-tooltip content="保存" placement="top">
-              <el-button v-if="scope.row.sheetStatus !== '2'" link type="primary" icon="Edit" @click="handleUpdate(scope.row)" :disabled="pomaster.sheetStatus === '2'" v-hasPermi="['po:pomaster:edit']"></el-button>
-            </el-tooltip>
+<!--            <el-tooltip content="保存" placement="top">-->
+<!--              <el-button v-if="scope.row.sheetStatus !== '2'" link type="primary" icon="Edit" @click="handleUpdate(scope.row)" :disabled="pomaster.sheetStatus === '2'" v-hasPermi="['po:pomaster:edit']"></el-button>-->
+<!--            </el-tooltip>-->
             <el-tooltip content="删除" placement="top">
               <el-button v-if="scope.row.sheetStatus !== '2'" link type="primary" icon="Delete" @click="handleDelete(scope.row)" :disabled="pomaster.sheetStatus !== '0'" v-hasPermi="['po:pomaster:remove']"></el-button>
             </el-tooltip>
@@ -253,7 +256,11 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const route = useRoute();
 
 const sheetId = ref<number>();
-const pomaster = ref<PomasterVO>({});
+const pomaster = ref<PomasterVO>({
+  sheetId: '',
+  sheetStatus: '0',
+  remark: ''
+});
 const podetailList = ref<PodetailVO[]>([]);
 const buttonLoading = ref(false);
 const loading = ref(true);
@@ -431,7 +438,7 @@ const getSheets = async (value: number) => {
   getList();
 }
 
-const getPomasterData = async (value: number) => {
+const getPomasterData = async (value: string | number) => {
   // loading.value = true;
   const res = await getPomaster(value);
   // console.log('getPomasterData: ', res)
@@ -515,7 +522,7 @@ const handleUpdate = async (row?: PodetailVO | undefined) => {
   if(!checkPermi(['po:pomaster:edit6'])){
     ele.orderQty6 = undefined;
   }
-  if(!checkPermi(['po:pomaster:edit-all'])){
+  if(!checkPermi(['po:pomaster:edit-real'])){
     ele.realQty1 = undefined;
     ele.realQty2 = undefined;
     ele.realQty3 = undefined;
@@ -561,7 +568,7 @@ const handleUpdateList = async (/*list: PodetailVO[] | undefined*/) => {
     if(!checkPermi(['po:pomaster:edit6'])){
       ele.orderQty6 = undefined;
     }
-    if(!checkPermi(['po:pomaster:edit-all'])){
+    if(!checkPermi(['po:pomaster:edit-real'])){
       ele.realQty1 = undefined;
       ele.realQty2 = undefined;
       ele.realQty3 = undefined;
@@ -617,7 +624,7 @@ onMounted(() => {
   getGoodsclsOptions();
   getGoodsinfoOptions();
 
-  sheetId.value = route.params && route.params.sheetId as number
+  sheetId.value = route.params && route.params.sheetId as unknown as number
   if(sheetId === undefined)
     return
   getPomasterData(sheetId.value)
